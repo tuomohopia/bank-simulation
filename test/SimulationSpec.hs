@@ -54,10 +54,9 @@ spec = describe "Simulation Tests" $ do
 
   context "averageMaxWait" $ do
     it "Should produce correct averages and maximums" $ do
+      -- Happy case test
       let a1 = [5.0, 5.0, 5.0]
           p1 = [0.0, 0.0, 0.0]
-          a2 = [0.0, 5.0, 1.0]
-          p2 = [10.0, 15.0, 0.0]
       averageMaxWait (a1, p1) `shouldBe` (0.0, 0.0)
 
 -- | Original provided math formula, used for property testing.

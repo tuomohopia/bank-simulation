@@ -1,13 +1,18 @@
+{-# LANGUAGE StrictData #-}
+{-# LANGUAGE Strict #-}
+
 module Bank.Simulation
   ( arrivalTimestamp
-  , averageMaxWaitYellow
+  , averageMaxWaitRandom
   , getQueueTimes
+  , counterProcessingTime
   , averageMaxWait
   , Seconds
   , Probability
   , ArrivalTime
   , ProcessingTime
   , Customer(..)
+  , Distribution(..)
   )
 where
 -- Dependency imports
@@ -19,9 +24,6 @@ import           Bank.Generator                 ( getRandomDoubles )
 import           Debug.Trace
 
 -- * Constants and Configs
-
-sampleCount :: SampleSize
-sampleCount = 1000000
 
 -- | Given constant in the assignment
 p :: Double
@@ -67,10 +69,10 @@ class Distribution a where
 
 -- ** Task 1: Given only yellow customers, what are the average and maximum customer waiting times?
 
--- | Produces Task 1 answer with Monte Carlo
-averageMaxWaitYellow :: IO (Average, Max)
-averageMaxWaitYellow = do
-  let dist = getDist Yellow
+-- | Average and Max Queuing times with Monte Carlo approximation.
+averageMaxWaitRandom :: Distribution a => a -> Int -> IO (Average, Max)
+averageMaxWaitRandom member sampleCount = do
+  let dist = getDist member
   randomsArrival    <- map arrivalTimestamp <$> getRandomDoubles sampleCount
   -- Get a new random list for processing times
   randomsProcessing <- map (counterProcessingTime dist)
@@ -108,10 +110,7 @@ queueAccumulator currentQueue (arr, proc) =
 -- | Computes the counter processing time of a group member (customer).
 -- Using formula: G(x) = p ⋅ (xα−1) ⋅ ((1−x)β−1)
 -- NOTE: Throws error if x >= 1 or x < 0.
-counterProcessingTime
-  :: (Alpha, Beta) -- ^ Alpha, beta values
-  -> Probability -- ^ Random value where 0 <= value > 1.
-  -> Seconds -- ^ Processing time for customer
+counterProcessingTime :: (Alpha, Beta) -> Probability -> Seconds
 counterProcessingTime (alpha, beta) x
   | randomWithinLimits x = p * (x ** (alpha - 1)) * ((1 - x) ** (beta - 1))
   | otherwise            = error $ "Faulty random input number " ++ show x
