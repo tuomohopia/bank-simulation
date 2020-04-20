@@ -85,9 +85,9 @@ averageMaxWaitRandom :: Distribution a => a -> Int -> IO (Average, Max)
 averageMaxWaitRandom member sampleCount = do
   randomsArrival    <- map getArrival <$> getRandomDoubles sampleCount
   -- Get a new random list for processing times
-  randomsProcessing <- map getProcessing <$> getRandomDoubles sampleCount
+  randomsProcessing <- map (getProcessing member)
+    <$> getRandomDoubles sampleCount
   return $ averageMaxWait (randomsArrival, randomsProcessing)
-  where getProcessing = counterProcessingTime (getDist member) . probability
 
 
 -- ** Task 2: Given only red customers, what are the average and maximum queue lengths in-front of the teller?
@@ -113,12 +113,11 @@ With this, we can check the number of customers queuing at any given time.
 averageMaxQueueRandom
   :: Distribution a => a -> Int -> IO (AverageQueue, MaxQueue)
 averageMaxQueueRandom member sampleCount = do
-  let dist = getDist member
   randomsArrival    <- map getArrival <$> getRandomDoubles sampleCount
   -- Get a new random list for processing times
-  randomsProcessing <- map getProcessing <$> getRandomDoubles sampleCount
+  randomsProcessing <- map (getProcessing member)
+    <$> getRandomDoubles sampleCount
   return $ averageMaxQueue (randomsArrival, randomsProcessing)
-  where getProcessing = counterProcessingTime (getDist member) . probability
 
 
 -- * Lib functions
@@ -249,3 +248,7 @@ arrivalTimestamp prob = log (1 - x) * (-100) where x = getProb prob
 -- | Helper
 getArrival :: Seconds -> Seconds
 getArrival = arrivalTimestamp . probability
+
+-- | Helper
+getProcessing :: Distribution a => a -> Seconds -> Seconds
+getProcessing member = counterProcessingTime (getDist member) . probability

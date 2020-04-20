@@ -69,7 +69,6 @@ spec = parallel $ describe "Simulation Tests" $ do
 
   context "howManyQueueing" $ do
     it "Should compute the number of customers queuing correctly" $ do
-      -- Happy case test
       let timestamps =
             [(0.0, 0.0), (5.0, 8.0), (6.0, 12.0), (15.0, 17.0), (16.0, 18.0)]
           end = 18.0
