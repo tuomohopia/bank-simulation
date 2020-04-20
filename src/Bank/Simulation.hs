@@ -168,6 +168,12 @@ averageMaxQueue times@(arrivalTimes, processingTimes) =
 -- | Fetches the amount of people queuing at the given timestamp.
 -- 'QueueTimestamps' holds customer's queue entering and exit times.
 -- If the timestamp is before or beyond the last queuing
+-- 
+-- NOTE: Profiling reveals 'closestAvgMaxCustomer' spends about 97% of its time
+-- in this function's invocations. A more efficient data structure for Queue Timestamps
+-- would be something more specific to interval lookups like Map/Set:
+-- https://hackage.haskell.org/package/IntervalMap
+-- However, for this assignment refactoring would come at the expense of code clarity.
 howManyQueueing :: Seconds -> Seconds -> [QueueTimestamps] -> Int
 howManyQueueing at end timestamps
   | at >= 0 && at < end = length $ filter isAtQueue timestamps
