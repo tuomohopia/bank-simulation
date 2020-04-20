@@ -4,6 +4,7 @@ import           Data.Text.Format               ( fixed )
 -- Project imports
 import           Bank.Simulation                ( averageMaxWaitRandom
                                                 , averageMaxQueueRandom
+                                                , closestAvgMaxCustomer
                                                 , Customer(..)
                                                 )
 
@@ -19,6 +20,11 @@ main = do
   (avg2, max2) <- averageMaxQueueRandom Red 10000
   putStrLn $ "Average queue length: " ++ formatDouble avg2 ++ " customers"
   putStrLn $ "Maximum queue length: " ++ show max2 ++ " customers"
+  -- TASK 3
+  putStrLn
+    "Task 3: Computing which customer has the closest average and max queueing times"
+  customer <- closestAvgMaxCustomer 10000
+  putStrLn $ "Closest customer: " ++ show customer
 
 -- | Pretty printing helper
 formatDouble :: Real a => a -> String

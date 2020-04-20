@@ -8,6 +8,7 @@ module Bank.Simulation
   , averageMaxWait
   , averageMaxQueueRandom
   , howManyQueueing
+  , closestAvgMaxCustomer
   , Seconds
   , Probability
   , ArrivalTime
@@ -18,7 +19,9 @@ module Bank.Simulation
 where
 -- Dependency imports
 import           GHC.Float                      ( int2Double )
-import           Data.List                      ( mapAccumL )
+import           Data.List                      ( mapAccumL
+                                                , minimumBy
+                                                )
 -- Project imports
 import           Bank.Generator                 ( getRandomDoubles )
 import           Bank.Probability               ( Probability
@@ -118,6 +121,23 @@ averageMaxQueueRandom member sampleCount = do
   randomsProcessing <- map (getProcessing member)
     <$> getRandomDoubles sampleCount
   return $ averageMaxQueue (randomsArrival, randomsProcessing)
+
+
+-- ** Task 3: Which type of customer(yellow, red or blue) gives the gives the closest value between the average and maximum customer waiting times?
+
+closestAvgMaxCustomer :: Int -> IO Customer
+closestAvgMaxCustomer sampleCount = do
+  (yellowAvg, yellowMax) <- averageMaxQueueRandom Yellow sampleCount
+  (redAvg   , redMax   ) <- averageMaxQueueRandom Red sampleCount
+  (blueAvg  , blueMax  ) <- averageMaxQueueRandom Blue sampleCount
+  -- average and max are both positive numbers, and avg should always be <= max
+  let yellowWithDiff = (Yellow, int2Double yellowMax - yellowAvg)
+      redWithDiff    = (Red, int2Double redMax - redAvg)
+      blueWithDiff   = (Blue, int2Double blueMax - blueAvg)
+      -- Get and return the customer color with the smallest difference
+      minDiff        = minimumBy (\a b -> compare (snd a) (snd b))
+                                 [yellowWithDiff, redWithDiff, blueWithDiff]
+  return $ fst minDiff
 
 
 -- * Lib functions
