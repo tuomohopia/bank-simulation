@@ -21,5 +21,5 @@ getRandomDoubles sampleCount = generate $ vectorOf sampleCount singleRandom
 
 -- | Generate values between 0 and <1.
 singleRandom :: Gen Double
-singleRandom = suchThat baseGenerator (\a -> a < 1)
+singleRandom = suchThat baseGenerator (< 1)
   where baseGenerator = choose (0, 1)
